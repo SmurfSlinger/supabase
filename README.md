@@ -6,6 +6,9 @@
 - Database migrations
 - Github actions for migration deployment
 
+
+The profiles table is defined declaratively in supabase/schemas/profiles.sql
+
 # Features:
 - User signup/login
 - Authentication protected dashboard

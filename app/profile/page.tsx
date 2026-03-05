@@ -16,6 +16,9 @@ export default function ProfilePage() {
 
   const router = useRouter()
 
+  const [avatarUrl, setAvatarUrl] = useState<string>('')
+  const [uploading, setUploading] = useState(false)
+
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<ProfileRow | null>(null)
 
@@ -48,6 +51,7 @@ export default function ProfilePage() {
       setProfile(data as ProfileRow)
       setFullName(data.full_name ?? '')
       setLoading(false)
+      setAvatarUrl(data.avatar_url ?? '')
     }
 
     loadProfile()
@@ -70,6 +74,53 @@ export default function ProfilePage() {
 
     setMsg('Saved!')
   }
+
+  const uploadAvatar = async (file: File) => {
+  setMsg('')
+  setUploading(true)
+
+  const { data: userData } = await supabase.auth.getUser()
+  const user = userData.user
+  if (!user) {
+    setMsg('Not logged in')
+    setUploading(false)
+    return
+  }
+
+  const ext = file.name.split('.').pop() ?? 'png'
+  const filePath = `${user.id}/${Date.now()}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true })
+
+  if (uploadError) {
+    setMsg(uploadError.message)
+    setUploading(false)
+    return
+  }
+
+  const { data: publicData } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath)
+
+  const publicUrl = publicData.publicUrl
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ avatar_url: publicUrl })
+    .eq('id', user.id)
+
+  if (updateError) {
+    setMsg(updateError.message)
+    setUploading(false)
+    return
+  }
+
+  setAvatarUrl(publicUrl)
+  setMsg('Avatar updated!')
+  setUploading(false)
+}
 
   if (loading) {
     return <main style={{ padding: 16 }}>Loading...</main>
@@ -97,9 +148,38 @@ export default function ProfilePage() {
             />
           </label>
 
+          <div>
+  <div><b>Avatar</b></div>
+
+  {avatarUrl ? (
+    <img
+      src={avatarUrl}
+      alt="avatar"
+      style={{ width: 96, height: 96, borderRadius: 8, objectFit: 'cover' }}
+    />
+  ) : (
+    <div style={{ fontStyle: 'italic' }}>(no avatar)</div>
+  )}
+
+        <input
+  type="file"
+  accept="image/*"
+  disabled={uploading}
+  onChange={(e) => {
+    const input = e.target as HTMLInputElement
+    const file = input.files?.[0]
+    if (!file) return
+
+    uploadAvatar(file)
+    input.value = ''
+  }}
+/>
+        </div>
+
           <button onClick={save}>Save</button>
         </div>
       )}
     </main>
   )
+  
 }
