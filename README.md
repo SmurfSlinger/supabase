@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### This is a simple Next.js application that uses Supabase for authentication and database storage/management, and is a full-stack setup complete with:
+- Next.js app router
+- Supabase authentication
+- PostgreSQL database
+- Row Level Security
+- Database migrations
+- Github actions for migration deployment
 
-## Getting Started
+# Features:
+- User signup/login
+- Authentication protected dashboard
+- User profile page
+- Profiles table linked to Supabase auth users
+- Automatic profile creation via database trigger
+- Row level security so users can access only their own data
 
-First, run the development server:
+# Tech stack:
+- Next.js
+- Supabase
+- PostgreSQL
+- TypeScript
+- Github actions
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# To Run the Project Locally:
+
+1: Install Dependencies
+- npm install
+
+2: Start Supabase locally
+- supabase start
+
+3: Run dev server
+- npm run dev
+
+4: Open in browser
+- http://localhost:3000
+
+- (or custom port)
+
+# Database Migrations:
+Database schema changes are stored in:
+- supabase/migrations
+
+To apply migrations locally:
+- supabase db reset
+
+or
+
+- supabase db push
+
+# Github Actions Migration Workflow:
+
+This repository includes a GitHub Action that automatically applies migrations to the production Supabase database.
+
+- .github/workflows/migrate.yml
+
+Required Github secrets:
+
+- SUPABASE_ACCESS_TOKEN
+- SUPABASE_PROJECT_REF
+- SUPABASE_DB_PASSWORD
+
+# Structure:
 ```
+app/
+  login/
+  signup/
+  dashboard/
+  profile/
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+lib/
+  supabaseClient.ts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+supabase/
+  migrations/
+```
